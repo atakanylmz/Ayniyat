@@ -29,6 +29,9 @@ namespace Ayniyat.Dal
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasDefaultSchema("ayniyat");
+
+
             modelBuilder.ApplyConfiguration(new DaireConfiguration());
             modelBuilder.ApplyConfiguration(new KullaniciConfiguration());
             modelBuilder.ApplyConfiguration(new RolConfiguration());
