@@ -61,10 +61,10 @@ namespace Ayniyat.Dal
                 , new Sube { Id = 3, Ad = "Coğrafi Bilgi Teknolojileri Şubesi Müdürlüğü", DaireId = 1 }
                 );
             modelBuilder.Entity<Rol>().HasData(
-                new Rol { Id = 1, Ad = "Sistem Yöneticisi", Aciklama = "Sistemdeki özellikleri belirler" }
+                new Rol { Id = 1, Ad = "SisYon", Aciklama = "Sistemdeki özellikleri belirler" }
                 , new Rol { Id = 2, Ad = "Admin", Aciklama = "Ayniyatçı" }
                 , new Rol { Id = 3, Ad = "Personel", Aciklama = "Üzerine zimmet yapılan kişi" }
-                , new Rol { Id = 4, Ad = "Ortak Alan", Aciklama = "Kişiye zimmetlenemeyen durumlar" }
+                , new Rol { Id = 4, Ad = "OrtakAlan", Aciklama = "Kişiye zimmetlenemeyen durumlar" }
                 );
             modelBuilder.Entity<Kullanici>().HasData(
                 new Kullanici 
@@ -97,18 +97,18 @@ namespace Ayniyat.Dal
                     RolId = 4,
                     Eposta = null,
                     SubeId = 3,
-                    Unvan = "TAŞINIR KAYIT KONTROL YETKİLİSİ",
+                    Unvan = "TOPLANTI SALONU",
                     Aktifmi = true
                 },
                 new Kullanici
                 {
-                    Id = 3,
+                    Id = 4,
                     Ad = "Ağ Sist.",
                     Soyad = "TOPLANTI SALONU",
                     RolId = 4,
                     Eposta = null,
                     SubeId = 3,
-                    Unvan = "TAŞINIR KAYIT KONTROL YETKİLİSİ",
+                    Unvan = "TOPLANTI SALONU",
                     Aktifmi = true
                 }
                 );
