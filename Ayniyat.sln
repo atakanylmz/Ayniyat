@@ -1,13 +1,13 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ayniyat.Api", "Ayniyat.Api\Ayniyat.Api.csproj", "{BE6CB3B3-B0C1-4AB1-8E41-079C2A962A15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ayniyat.Models", "Ayniyat.Models\Ayniyat.Models.csproj", "{11281973-0C16-43FF-845E-1E372994A328}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ayniyat.Models", "Ayniyat.Models\Ayniyat.Models.csproj", "{11281973-0C16-43FF-845E-1E372994A328}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ayniyat.Dal", "Ayniyat.Dal\Ayniyat.Dal.csproj", "{9A067151-9393-408A-9EAC-D35FF1EF87BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ayniyat.Dal", "Ayniyat.Dal\Ayniyat.Dal.csproj", "{9A067151-9393-408A-9EAC-D35FF1EF87BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
