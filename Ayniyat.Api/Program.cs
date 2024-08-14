@@ -1,7 +1,13 @@
 using Ayniyat.Dal;
+using Ayniyat.Dal.Abstract;
+using Ayniyat.Dal.Concrete;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddTransient<IDaireDal, DaireDal>();
+
+
 
 // Add services to the container.
 
