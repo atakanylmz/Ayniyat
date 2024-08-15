@@ -9,6 +9,6 @@ namespace Ayniyat.Dal.Abstract
 {
     public interface IKullaniciDal:IGenericDal<Kullanici>
     {
-       
+        Task<Kullanici?> Getir(string kullaniciAdi);
     }
 }

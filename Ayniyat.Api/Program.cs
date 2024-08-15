@@ -6,6 +6,11 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IDaireDal, DaireDal>();
+builder.Services.AddTransient<IKullaniciDal, KullaniciDal>();
+builder.Services.AddTransient<IRolDal, RolDal>();
+builder.Services.AddTransient<ISubeDal, SubeDal>();
+builder.Services.AddTransient<IZimmetDal, ZimmetDal>();
+builder.Services.AddTransient<IZimmetLogDal, ZimmetLogDal>();
 
 
 

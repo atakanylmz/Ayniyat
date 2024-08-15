@@ -1,5 +1,6 @@
 ﻿using Ayniyat.Dal.Abstract;
 using Ayniyat.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,12 @@ namespace Ayniyat.Dal.Concrete
     {
         public KullaniciDal(DefaultDbContext context) : base(context)
         {
+        }
+
+        public async Task<Kullanici?> Getir(string kullaniciAdi)
+        {
+            var eposta = kullaniciAdi + "@kgm.gov.tr";
+            return await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Eposta == eposta);
         }
     }
 }
