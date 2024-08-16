@@ -1,7 +1,11 @@
 using Ayniyat.Dal;
 using Ayniyat.Dal.Abstract;
 using Ayniyat.Dal.Concrete;
+using Ayniyat.Models.Utilities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +18,22 @@ builder.Services.AddTransient<IZimmetLogDal, ZimmetLogDal>();
 
 
 
-// Add services to the container.
+var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+   .AddJwtBearer(options =>
+   {
+       options.TokenValidationParameters = new TokenValidationParameters
+       {
+           ValidateIssuer = true,
+           ValidateAudience = true,
+           ValidateLifetime = true,
+           ValidIssuer = tokenOptions.Issuer,
+           ValidAudience = tokenOptions.Audience,
+           ValidateIssuerSigningKey = true,
+           IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecurityKey))
+       };
+   });
+
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<DefaultDbContext>(options =>

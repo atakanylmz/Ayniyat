@@ -1,4 +1,5 @@
 ﻿using Ayniyat.Dal.Abstract;
+using Ayniyat.Models.Dtos;
 using Ayniyat.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,7 +19,12 @@ namespace Ayniyat.Dal.Concrete
         public async Task<Kullanici?> Getir(string kullaniciAdi)
         {
             var eposta = kullaniciAdi + "@kgm.gov.tr";
-            return await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Eposta == eposta);
+            return await _context.Kullanicilar.Include(x=>x.Rol).FirstOrDefaultAsync(x => x.Eposta == eposta);
+        }
+
+        public async Task<List<Kullanici>> ListeGetir(KullaniciAraKriterDto kriterDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }
