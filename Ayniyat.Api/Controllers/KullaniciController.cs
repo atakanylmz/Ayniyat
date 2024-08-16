@@ -89,7 +89,7 @@ namespace Ayniyat.Api.Controllers
         #region personel_islemleri
 
         [HttpGet("getir")]
-        //[Authorize(Roles ="SisYon,Admin")]
+        [Authorize(Roles ="SisYon,Admin")]
         public async Task<IActionResult> Getir(int id)
         {
             var kullanici=await _kullaniciDal.Getir(id);
@@ -115,10 +115,60 @@ namespace Ayniyat.Api.Controllers
         [HttpPost("listeGetir")]
         public async Task<IActionResult> ListeGetir([FromBody] KullaniciAraKriterDto kriterDto)
         {
+            var kullaniciListesi=await _kullaniciDal.ListeGetir(kriterDto);
 
+            List<KullaniciListeOgeDto> dtoListe=kullaniciListesi.Select(x=>new KullaniciListeOgeDto 
+            {
+                Id=x.Id,
+                Ad=x.Ad,
+                Soyad = x.Soyad,
+                Eposta=x.Eposta,
+                Unvan=x.Unvan,
+                Aktifmi=x.Aktifmi?"EVET":"HAYIR",
+                SubeAd=x.Sube==null?"":x.Sube.Ad,
+                AyniyatSayisi=x.Zimmetler.AsEnumerable().Count()
+            
+            }).ToList();
 
+            return Ok(dtoListe);
+        }
 
-            return Ok(kriterDto);
+        [HttpPost("kaydet")]
+        public async Task<IActionResult> Kaydet([FromBody] KullaniciDto kullaniciDto)
+        {
+            if (kullaniciDto.Id == 0)//yeni kayıt
+            {
+                Kullanici eklenecekKullanici = new Kullanici
+                {
+                    Ad = kullaniciDto.Ad,
+                    Soyad = kullaniciDto.Soyad,
+                    Aktifmi = kullaniciDto.Aktifmi,
+                    Eposta = kullaniciDto.Eposta,
+                    SubeId = kullaniciDto.SubeId,
+                    Unvan = kullaniciDto.Unvan,
+                    RolId = 3//varsayılan rol personel
+                };
+                await _kullaniciDal.Ekle(eklenecekKullanici);
+            }
+            else//güncelleme
+            {
+                Kullanici? guncellenecekKullanici = await _kullaniciDal.Getir(kullaniciDto.Id);
+                if (guncellenecekKullanici == null)
+                    return NotFound();
+
+                guncellenecekKullanici.Ad= kullaniciDto.Ad;
+                guncellenecekKullanici.Soyad= kullaniciDto.Soyad;
+                guncellenecekKullanici.Unvan= kullaniciDto.Unvan;
+                guncellenecekKullanici.Eposta= kullaniciDto.Eposta;
+                guncellenecekKullanici.SubeId= kullaniciDto.SubeId;
+                guncellenecekKullanici.Aktifmi = kullaniciDto.Aktifmi;
+
+                await _kullaniciDal.Guncelle(guncellenecekKullanici);
+
+            }
+
+            return Ok(kullaniciDto);
+       
         }
         #endregion
     }

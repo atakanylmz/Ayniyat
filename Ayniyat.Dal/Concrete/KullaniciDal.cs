@@ -24,7 +24,20 @@ namespace Ayniyat.Dal.Concrete
 
         public async Task<List<Kullanici>> ListeGetir(KullaniciAraKriterDto kriterDto)
         {
-            throw new NotImplementedException();
+            List<Kullanici> kullaniciListesi;
+            if (kriterDto.SubeId == 0)
+            {
+                 kullaniciListesi =string.IsNullOrWhiteSpace(kriterDto.AraText)?
+                    await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x=>x.Sube).ToListAsync():
+                    await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x => x.Ad.Contains(kriterDto.AraText)|| x.Soyad.Contains(kriterDto.AraText)).ToListAsync();
+            }
+            else
+            {
+                kullaniciListesi = string.IsNullOrWhiteSpace(kriterDto.AraText) ?
+                   await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x=>x.SubeId==kriterDto.SubeId).ToListAsync() :
+                   await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x =>x.SubeId==kriterDto.SubeId && (x.Ad.Contains(kriterDto.AraText)|| x.Soyad.Contains(kriterDto.AraText))).ToListAsync();
+            }
+            return kullaniciListesi;
         }
     }
 }
