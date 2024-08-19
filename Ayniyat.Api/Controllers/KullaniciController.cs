@@ -17,7 +17,7 @@ namespace Ayniyat.Api.Controllers
     [ApiController]
     public class KullaniciController : ControllerBase
     {
-        IKullaniciDal _kullaniciDal;
+        private IKullaniciDal _kullaniciDal;
         public IConfiguration _configuration;
         private TokenOptions _tokenOptions;
         public KullaniciController(IKullaniciDal kullaniciDal,IConfiguration configuration)
