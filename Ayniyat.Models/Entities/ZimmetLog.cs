@@ -21,7 +21,7 @@ namespace Ayniyat.Models.Entities
         public DateTime IslemTarihi { get; set; }
 
         public string? Aciklama { get; set; }
-        //public string? Karsilastirma { get; set; }
+        public string? Degisenler { get; set; }
         public int ZimmetId { get; set; }
         public Zimmet? Zimmet { get; set; }
     }

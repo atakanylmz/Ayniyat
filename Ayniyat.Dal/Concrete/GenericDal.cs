@@ -20,9 +20,18 @@ namespace Ayniyat.Dal.Concrete
         }
         public async Task<T?> Ekle(T entity)
         {
-            _dbSet.Add(entity);
+            try
+            {
+   _dbSet.Add(entity);
             await _context.SaveChangesAsync();
             return entity;
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+         
         }
 
         public async Task<T?> Getir(int id)

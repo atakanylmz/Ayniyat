@@ -20,6 +20,7 @@ namespace Ayniyat.Api.Controllers
             _zimmetLogDal = zimmetLogDal;
         }
 
+        [HttpGet("getir")]
         public async Task<IActionResult> Getir(int id)
         {
             var zimmet=await _zimmetDal.Getir(id);
@@ -44,7 +45,8 @@ namespace Ayniyat.Api.Controllers
             return Ok(zimmetDto);
         }
 
-        public async Task<IActionResult> Kaydet(ZimmetDto zimmetDto)
+        [HttpPost("kaydet")]
+        public async Task<IActionResult> Kaydet([FromBody] ZimmetDto zimmetDto)
         {
             if (zimmetDto.Id == 0)
             {
@@ -66,10 +68,30 @@ namespace Ayniyat.Api.Controllers
                     StokNo = zimmetDto.StokNo,
                     TasinirNo = zimmetDto.TasinirNo,
                     SubeId=kullanici.SubeId,
-                    KayitTarihi=DateTime.Now,
-                    GuncellemeTarihi=DateTime.Now,         
+                    KayitTarihi=DateTime.UtcNow,
+                    GuncellemeTarihi=DateTime.UtcNow,         
                 };
+
+
                 await _zimmetDal.Ekle(eklenecekZimmet);
+
+                var log = new ZimmetLog
+                {
+                    Aciklama = eklenecekZimmet.Aciklama,
+                    MalzemeAd = eklenecekZimmet.MalzemeAd,
+                    Birim = eklenecekZimmet.Birim,
+                    EnvanterNo = eklenecekZimmet.EnvanterNo,
+                    IslemTarihi = DateTime.UtcNow,
+                    Miktar = eklenecekZimmet.Miktar,
+                    Model = eklenecekZimmet.Model,
+                    SeriNo = eklenecekZimmet.SeriNo,
+                    StokNo = eklenecekZimmet.StokNo,
+                    TasinirNo = eklenecekZimmet.TasinirNo,
+                    ZimmetId = eklenecekZimmet.Id,
+                    Degisenler="Yeni kayıt oluşturuldu"
+                };
+                await _zimmetLogDal.Ekle(log);
+
                 return Ok();
             }
             else
@@ -97,13 +119,14 @@ namespace Ayniyat.Api.Controllers
                     MalzemeAd=guncellenecekZimmet.MalzemeAd,
                     Birim=guncellenecekZimmet.Birim,
                     EnvanterNo=guncellenecekZimmet.EnvanterNo,
-                    IslemTarihi=DateTime.Now,
+                    IslemTarihi=DateTime.UtcNow,
                     Miktar=guncellenecekZimmet.Miktar,
                     Model=guncellenecekZimmet.Model,
                     SeriNo=guncellenecekZimmet.SeriNo,
                     StokNo=guncellenecekZimmet.StokNo,
                     TasinirNo=guncellenecekZimmet.TasinirNo,
                     ZimmetId=guncellenecekZimmet.Id,
+                    Degisenler= zimmetLogAciklama
                 };
 
                 await _zimmetDal.Guncelle(guncellenecekZimmet);
@@ -115,13 +138,27 @@ namespace Ayniyat.Api.Controllers
 
         private string ZimmetKarsilastir(Zimmet zimmet, ZimmetDto zimmetDto)
         {
-            string aciklama="";
+            string degisim="";
+          
+            if (zimmet.MalzemeAd != zimmetDto.MalzemeAd)
+                degisim += "Malzeme Adı, ";
+            if (zimmet.Birim != zimmetDto.Birim)
+                degisim += "Birim, ";
+            if (zimmet.EnvanterNo != zimmetDto.EnvanterNo)
+                degisim += "Envanter No, ";
             if (zimmet.Miktar != zimmetDto.Miktar)
-                aciklama += "Eki Miktar: " + zimmet.Miktar + ", Yeni Miktar: " + zimmetDto.Miktar + Environment.NewLine;
+                degisim += "Miktar, ";
+            if (zimmet.Model != zimmetDto.Model)
+                degisim += "Model, ";
+            if (zimmet.SeriNo != zimmetDto.SeriNo)
+                degisim += "Seri No, ";
             if (zimmet.StokNo != zimmetDto.StokNo)
-                aciklama += "Eski Stok No: " + zimmet.StokNo + ", Yeni Stok No: " + zimmetDto.StokNo + Environment.NewLine;
-            //if(zimmet.TasinirNo!=zimmetDto.TasinirNo)
-            return aciklama;
+                degisim += "Stok No, ";
+            if (zimmet.TasinirNo != zimmetDto.TasinirNo)
+                degisim += "Taşınır No, ";
+
+            degisim = degisim.Remove(degisim.Length - 2, 2);
+                return degisim;
         }
     }
 }
