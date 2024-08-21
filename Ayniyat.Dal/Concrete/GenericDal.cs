@@ -22,7 +22,7 @@ namespace Ayniyat.Dal.Concrete
         {
             try
             {
-   _dbSet.Add(entity);
+            _dbSet.Add(entity);
             await _context.SaveChangesAsync();
             return entity;
             }

@@ -99,6 +99,8 @@ namespace Ayniyat.Api.Controllers
                 var guncellenecekZimmet=await _zimmetDal.Getir(zimmetDto.Id);
                 if (guncellenecekZimmet == null)
                     return BadRequest("Zimmet bulunamadı");
+                if (guncellenecekZimmet.KaldirilmaTarihi.HasValue)
+                    return BadRequest("Kaldirilan ayniyat güncellenemez");
 
                 string zimmetLogAciklama = ZimmetKarsilastir(guncellenecekZimmet, zimmetDto);
                 if (string.IsNullOrWhiteSpace(zimmetLogAciklama))
@@ -160,5 +162,76 @@ namespace Ayniyat.Api.Controllers
             degisim = degisim.Remove(degisim.Length - 2, 2);
                 return degisim;
         }
+
+
+        [HttpGet("ayniyatgecmisigetir")]
+        public async Task<IActionResult> ZimmetLoglariGetir(int zimmetId)
+        {
+            var loglar=await _zimmetLogDal.ZimmetLoglariGetir(zimmetId);
+            List<ZimmetLogListeOgeDto> dtoList=loglar.Select(x=>new ZimmetLogListeOgeDto
+            {
+                Aciklama = x.Aciklama,
+                MalzemeAd = x.MalzemeAd,
+                Birim = x.Birim,
+                EnvanterNo = x.EnvanterNo,
+                IslemTarihi = DateTime.UtcNow,
+                Miktar = x.Miktar,
+                Model = x.Model,
+                SeriNo = x.SeriNo,
+                StokNo = x.StokNo,
+                TasinirNo = x.TasinirNo,
+                Degisenler = x.Degisenler
+            }).ToList();
+
+            return Ok(dtoList );
+        }
+
+
+        /// <summary>
+        /// kullaniciId=0 verilirse ZimmetBazlı liste istenmiş olur
+        /// subeId=0 verilirse KullanıcıBazlı liste istenmiş olur
+        /// </summary>
+        /// <param name="kriter"></param>
+        /// <returns></returns>
+        [HttpPost("listegetir")]
+        public async Task<IActionResult> ListeGetir(ZimmetAraKriterDto kriter)
+        {
+            var liste = await _zimmetDal.ZimmetListesiGetir(kriter);
+            return Ok(liste );
+        }
+
+
+        [HttpGet("kaldir")]
+        public async Task<IActionResult> Kaldir(int zimmetId)
+        {
+            Zimmet? kaldirilacakZimmet=await _zimmetDal.Getir(zimmetId);
+            if(kaldirilacakZimmet==null)
+                return NotFound();
+            if(kaldirilacakZimmet.KaldirilmaTarihi.HasValue)
+            {
+                return BadRequest("Ayniyat daha önce kaldırılmış");
+            }
+            kaldirilacakZimmet.KaldirilmaTarihi = DateTime.UtcNow;
+            await _zimmetDal.Guncelle(kaldirilacakZimmet);
+
+            var log = new ZimmetLog
+            {
+                Aciklama = kaldirilacakZimmet.Aciklama,
+                MalzemeAd = kaldirilacakZimmet.MalzemeAd,
+                Birim = kaldirilacakZimmet.Birim,
+                EnvanterNo = kaldirilacakZimmet.EnvanterNo,
+                IslemTarihi = DateTime.UtcNow,
+                Miktar = kaldirilacakZimmet.Miktar,
+                Model = kaldirilacakZimmet.Model,
+                SeriNo = kaldirilacakZimmet.SeriNo,
+                StokNo = kaldirilacakZimmet.StokNo,
+                TasinirNo = kaldirilacakZimmet.TasinirNo,
+                ZimmetId = kaldirilacakZimmet.Id,
+                Degisenler = "Ayniyat kaldırıldı"
+            };
+            await _zimmetLogDal.Ekle(log);
+            return Ok();
+        }
+
     }
 }

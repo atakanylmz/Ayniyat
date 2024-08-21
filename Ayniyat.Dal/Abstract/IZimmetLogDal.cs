@@ -9,5 +9,7 @@ namespace Ayniyat.Dal.Abstract
 {
     public  interface IZimmetLogDal:IGenericDal<ZimmetLog>
     {
+        Task<List<ZimmetLog>> ZimmetLoglariGetir(int zimmetId);
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Ayniyat.Dal.Abstract;
 using Ayniyat.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,11 @@ namespace Ayniyat.Dal.Concrete
     {
         public ZimmetLogDal(DefaultDbContext context) : base(context)
         {
+        }
+
+        public async Task<List<ZimmetLog>> ZimmetLoglariGetir(int zimmetId)
+        {
+           return await _context.ZimmetLoglari.Where(x=>x.ZimmetId == zimmetId).ToListAsync();
         }
     }
 }
