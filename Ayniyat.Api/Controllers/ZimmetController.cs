@@ -1,8 +1,11 @@
 ﻿using Ayniyat.Dal.Abstract;
 using Ayniyat.Models.Dtos;
 using Ayniyat.Models.Entities;
+using Ayniyat.Models.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
+using System.Security.Claims;
 
 namespace Ayniyat.Api.Controllers
 {
@@ -10,14 +13,18 @@ namespace Ayniyat.Api.Controllers
     [ApiController]
     public class ZimmetController : ControllerBase
     {
+        public IConfiguration _configuration;
         private IZimmetDal _zimmetDal;
         private IKullaniciDal _kullaniciDal;
         private IZimmetLogDal _zimmetLogDal;
-        public ZimmetController(IZimmetDal zimmetDal,IKullaniciDal kullaniciDal, IZimmetLogDal zimmetLogDal)
+        private Paths _paths;
+        public ZimmetController(IZimmetDal zimmetDal,IKullaniciDal kullaniciDal, IZimmetLogDal zimmetLogDal, IConfiguration configuration)
         {
             _zimmetDal = zimmetDal;
             _kullaniciDal = kullaniciDal;
             _zimmetLogDal = zimmetLogDal;
+            _configuration = configuration;
+            _paths = configuration.GetSection("Paths").Get<Paths>();
         }
 
         [HttpGet("getir")]
@@ -231,6 +238,64 @@ namespace Ayniyat.Api.Controllers
             };
             await _zimmetLogDal.Ekle(log);
             return Ok();
+        }
+
+        [HttpGet("excelindir")]
+        public async Task<IActionResult> ExcelIndir(int kullaniciId)
+        {
+            var kullanici = await _kullaniciDal.Getir(kullaniciId);
+            if (kullanici == null)
+                return NotFound();
+
+            var liste=await _zimmetDal.ZimmetListesiGetir(new ZimmetAraKriterDto { KullaniciId = kullaniciId,Tarih=DateTime.UtcNow });
+
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            var path = Path.Combine(_paths.ExcelFile, "ayniyat.xlsx");
+            if (!System.IO.File.Exists(path))
+            {
+                return NotFound();
+            }
+
+            FileInfo fileInfo=new FileInfo(path);
+            using (var excelapp = new ExcelPackage(fileInfo))
+            {
+                var worksheet = excelapp.Workbook.Worksheets["Sayfa1"];
+
+                worksheet.Cells[2, 8].Value = DateTime.UtcNow;
+                int satir = 6;
+
+                foreach (var zimmet in liste)
+                {
+                    worksheet.Cells[satir, 2].Value = zimmet.StokNo;
+                    worksheet.Cells[satir, 3].Value = zimmet.TasinirNo;
+                    worksheet.Cells[satir, 4].Value = zimmet.MalzemeAd;
+                    worksheet.Cells[satir, 5].Value = zimmet.EnvanterNo;
+                    worksheet.Cells[satir, 6].Value = zimmet.Birim;
+                    worksheet.Cells[satir, 7].Value = zimmet.Miktar;
+                    worksheet.Cells[satir, 8].Value = zimmet.SeriNo;
+
+                    satir += 1;
+                }
+
+                worksheet.Cells[25, 3].Value = kullanici.Unvan;
+                worksheet.Cells[25, 5].Value = kullanici.Ad+" "+kullanici.Soyad;
+
+                var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var currentUser=await _kullaniciDal.Getir(currentUserId);
+                if (currentUser == null)
+                    return NotFound();
+
+                worksheet.Cells[26, 3].Value = currentUser.Unvan;
+                worksheet.Cells[26, 5].Value = currentUser.Ad + " " + currentUser.Soyad;
+
+                var ms = new MemoryStream();
+                excelapp.SaveAs(ms);
+                var byteArray=ms.ToArray();
+
+                return File(byteArray, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+
+
         }
 
     }
