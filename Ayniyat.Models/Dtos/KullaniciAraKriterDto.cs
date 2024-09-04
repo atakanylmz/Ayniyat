@@ -10,7 +10,7 @@ namespace Ayniyat.Models.Dtos
     {
         public string? AraText { get; set; }
 
-        public int SubeId { get; set; }
+        public int? SubeId { get; set; }
 
     }
 }

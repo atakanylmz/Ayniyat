@@ -25,7 +25,7 @@ namespace Ayniyat.Dal.Concrete
         public async Task<List<Kullanici>> ListeGetir(KullaniciAraKriterDto kriterDto)
         {
             List<Kullanici> kullaniciListesi;
-            if (kriterDto.SubeId == 0)
+            if (!kriterDto.SubeId.HasValue)
             {
                  kullaniciListesi =string.IsNullOrWhiteSpace(kriterDto.AraText)?
                     await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x=>x.Sube).ToListAsync():
@@ -34,10 +34,15 @@ namespace Ayniyat.Dal.Concrete
             else
             {
                 kullaniciListesi = string.IsNullOrWhiteSpace(kriterDto.AraText) ?
-                   await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x=>x.SubeId==kriterDto.SubeId).ToListAsync() :
-                   await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x =>x.SubeId==kriterDto.SubeId && (x.Ad.Contains(kriterDto.AraText)|| x.Soyad.Contains(kriterDto.AraText))).ToListAsync();
+                   await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x=>x.SubeId==kriterDto.SubeId.Value).ToListAsync() :
+                   await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x =>x.SubeId==kriterDto.SubeId.Value && (x.Ad.Contains(kriterDto.AraText)|| x.Soyad.Contains(kriterDto.AraText))).ToListAsync();
             }
             return kullaniciListesi;
+        }
+
+        public async Task<Kullanici?> SubeyleGetir(int id)
+        {
+            return await _context.Kullanicilar.Include(x=>x.Sube).FirstOrDefaultAsync(x=>x.Id==id);
         }
     }
 }

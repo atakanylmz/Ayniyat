@@ -2,6 +2,7 @@
 using Ayniyat.Models.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Ayniyat.Api.Controllers
 {
@@ -32,14 +33,24 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpGet("subelistesigetir")]
-        public async Task<IActionResult> SubeListesiGetir(int daireId)
+        public async Task<IActionResult> SubeListesiGetir()
         {
+            var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var currentUser = await _kullaniciDal.SubeyleGetir(currentUserId);
+            if (currentUser == null||currentUser.Sube==null)
+                return NotFound();
+
+            int daireId = currentUser.Sube.DaireId;
+           
+
             var subeListesi = await _subeDal.TumunuGetir();
-            List<AcilirListeOgeDto> acilirListeElemanlari = subeListesi.Where(x => x.DaireId == daireId).Select(x => new AcilirListeOgeDto
+            List<AcilirListeOgeDto> acilirListeElemanlari = subeListesi.Where(x => x.DaireId == daireId).OrderBy(x=>x.Ad).Select(x => new AcilirListeOgeDto
             {
                 Text = x.Ad,
                 Id = x.Id,
             }).ToList();
+            //acilirListeElemanlari.Insert(0, new AcilirListeOgeDto { Id = 0, Text = "Tümü" });
+           
             return Ok(acilirListeElemanlari);
         }
     }

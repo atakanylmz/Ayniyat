@@ -88,8 +88,8 @@ namespace Ayniyat.Api.Controllers
 
         #region personel_islemleri
 
-        [HttpGet("getir")]
-        [Authorize(Roles ="SisYon,Admin")]
+        [HttpGet("getir/{id}")]
+        //[Authorize(Roles ="SisYon,Admin")]
         public async Task<IActionResult> Getir(int id)
         {
             var kullanici=await _kullaniciDal.Getir(id);

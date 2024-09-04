@@ -13,6 +13,8 @@ namespace Ayniyat.Dal.Abstract
         Task<Kullanici?> Getir(string kullaniciAdi);
 
         Task<List<Kullanici>> ListeGetir(KullaniciAraKriterDto kriterDto);
+
+        Task<Kullanici?> SubeyleGetir(int id);
     }
 
 }
