@@ -204,7 +204,23 @@ namespace Ayniyat.Api.Controllers
         public async Task<IActionResult> ListeGetir(ZimmetAraKriterDto kriter)
         {
             var liste = await _zimmetDal.ZimmetListesiGetir(kriter);
-            return Ok(liste );
+            List<ZimmetListeOgeDto> dtoListe=liste.Select(x=>new ZimmetListeOgeDto 
+            {
+                Id = x.Id,
+                StokNo=x.StokNo,
+                TasinirNo=x.TasinirNo,
+                MalzemeAd=x.MalzemeAd,
+                EnvanterNo=x.EnvanterNo,
+                Birim=x.Birim,
+                Miktar=x.Miktar,
+                SeriNo=x.SeriNo,
+                Model = x.Model,
+                KayitTarihi=x.KayitTarihi,
+                GuncellemeTarihi=x.GuncellemeTarihi,
+                KaldirilmaTarihi=x.KaldirilmaTarihi,
+                Aciklama=x.Aciklama
+            }).ToList();
+            return Ok(dtoListe );
         }
 
 
