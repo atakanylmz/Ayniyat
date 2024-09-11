@@ -27,7 +27,7 @@ namespace Ayniyat.Api.Controllers
             _paths = configuration.GetSection("Paths").Get<Paths>();
         }
 
-        [HttpGet("getir")]
+        [HttpGet("getir/{id}")]
         public async Task<IActionResult> Getir(int id)
         {
             var zimmet=await _zimmetDal.Getir(id);
@@ -165,7 +165,7 @@ namespace Ayniyat.Api.Controllers
                 degisim += "Stok No, ";
             if (zimmet.TasinirNo != zimmetDto.TasinirNo)
                 degisim += "Taşınır No, ";
-
+            if(degisim.Length>2)
             degisim = degisim.Remove(degisim.Length - 2, 2);
                 return degisim;
         }
@@ -224,7 +224,7 @@ namespace Ayniyat.Api.Controllers
         }
 
 
-        [HttpGet("kaldir")]
+        [HttpGet("kaldir/{zimmetId}")]
         public async Task<IActionResult> Kaldir(int zimmetId)
         {
             Zimmet? kaldirilacakZimmet=await _zimmetDal.Getir(zimmetId);
@@ -256,7 +256,7 @@ namespace Ayniyat.Api.Controllers
             return Ok();
         }
 
-        [HttpGet("excelindir")]
+        [HttpGet("excelindir/{kullaniciId}")]
         public async Task<IActionResult> ExcelIndir(int kullaniciId)
         {
             var kullanici = await _kullaniciDal.Getir(kullaniciId);
@@ -271,6 +271,11 @@ namespace Ayniyat.Api.Controllers
             {
                 return NotFound();
             }
+            
+            var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var currentUser = await _kullaniciDal.Getir(currentUserId);
+            if (currentUser == null)
+                return NotFound();
 
             FileInfo fileInfo=new FileInfo(path);
             using (var excelapp = new ExcelPackage(fileInfo))
@@ -279,7 +284,10 @@ namespace Ayniyat.Api.Controllers
 
                 worksheet.Cells[2, 8].Value = DateTime.UtcNow;
                 int satir = 6;
-
+                int sayac = 0;
+                //excelde her 28de bir tekrar ediyor. O yüzden kaç tane 17 lik satır varsa o kadar tekrarlı yazdırılacak alan olacak
+                int ciktiSyfaSayisi = (liste.Count / 17)+1;
+                int silinecek =28* ciktiSyfaSayisi;
                 foreach (var zimmet in liste)
                 {
                     worksheet.Cells[satir, 2].Value = zimmet.StokNo;
@@ -289,20 +297,26 @@ namespace Ayniyat.Api.Controllers
                     worksheet.Cells[satir, 6].Value = zimmet.Birim;
                     worksheet.Cells[satir, 7].Value = zimmet.Miktar;
                     worksheet.Cells[satir, 8].Value = zimmet.SeriNo;
+                    
+                    sayac++;
+                    if(sayac==17)
+                    {
+                        sayac = 0;
+                        satir = satir + 12;
 
+                    }
+                    else
                     satir += 1;
                 }
+                for (int i = 0; i < 9; i++)
+                {
+                    worksheet.Cells[25+i*28, 3].Value = kullanici.Unvan;
+                    worksheet.Cells[25 + i * 28, 5].Value = kullanici.Ad + " " + kullanici.Soyad;
 
-                worksheet.Cells[25, 3].Value = kullanici.Unvan;
-                worksheet.Cells[25, 5].Value = kullanici.Ad+" "+kullanici.Soyad;
-
-                var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var currentUser=await _kullaniciDal.Getir(currentUserId);
-                if (currentUser == null)
-                    return NotFound();
-
-                worksheet.Cells[26, 3].Value = currentUser.Unvan;
-                worksheet.Cells[26, 5].Value = currentUser.Ad + " " + currentUser.Soyad;
+                    worksheet.Cells[26 + i * 28, 3].Value = currentUser.Unvan;
+                    worksheet.Cells[26 + i * 28, 5].Value = currentUser.Ad + " " + currentUser.Soyad;
+                }
+                worksheet.DeleteRow(silinecek, 252);
 
                 var ms = new MemoryStream();
                 excelapp.SaveAs(ms);

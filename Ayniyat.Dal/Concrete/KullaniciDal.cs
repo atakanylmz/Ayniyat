@@ -37,7 +37,7 @@ namespace Ayniyat.Dal.Concrete
                    await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x=>x.SubeId==kriterDto.SubeId.Value).ToListAsync() :
                    await _context.Kullanicilar.Include(x => x.Zimmetler).Include(x => x.Sube).Where(x =>x.SubeId==kriterDto.SubeId.Value && (x.Ad.Contains(kriterDto.AraText)|| x.Soyad.Contains(kriterDto.AraText))).ToListAsync();
             }
-            return kullaniciListesi;
+            return kullaniciListesi.Where(x=>x.Aktifmi==kriterDto.Aktifmi).ToList();
         }
 
         public async Task<Kullanici?> SubeyleGetir(int id)

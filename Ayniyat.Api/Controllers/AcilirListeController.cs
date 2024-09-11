@@ -22,7 +22,7 @@ namespace Ayniyat.Api.Controllers
         [HttpGet( "kullanicilistesigetir")]
         public async Task<IActionResult> KullaniciListesiGetir(int subeId)
         {
-            var kullaniciListesi=await _kullaniciDal.ListeGetir(new KullaniciAraKriterDto { SubeId = subeId });
+            var kullaniciListesi=await _kullaniciDal.ListeGetir(new KullaniciAraKriterDto { SubeId = subeId,Aktifmi=true });
             List<AcilirListeOgeDto> acilirListeElemanlari=kullaniciListesi.Select(x=>new AcilirListeOgeDto 
             {
                 Text=x.Ad+" "+x.Soyad,

@@ -55,12 +55,12 @@ namespace Ayniyat.Dal.Concrete
                     list = kriter.Tarih.HasValue ?
                         // tarih var
                         (await _context.Zimmetler.Where(x =>
-                            x.KayitTarihi.ToUniversalTime() < kriter.Tarih.Value.ToUniversalTime() &&
-                            (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.Value.ToUniversalTime() > kriter.Tarih.Value.ToUniversalTime()))
+                            x.KayitTarihi.ToUniversalTime() <= kriter.Tarih.Value.ToUniversalTime() &&
+                            (!x.KaldirilmaTarihi.HasValue ||  x.KaldirilmaTarihi.HasValue == kriter.KaldirilanlariGoster))
                         .ToListAsync())
                         :
                         // tarih yok
-                        (await _context.Zimmetler.ToListAsync()); // hiçbir kriter yok
+                        (await _context.Zimmetler.Where(x => (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.HasValue == kriter.KaldirilanlariGoster)).ToListAsync()); // hiçbir kriter yok
                 }
                 else // belli bir şube için
                 {
@@ -69,11 +69,14 @@ namespace Ayniyat.Dal.Concrete
                         (await _context.Zimmetler.Where(x =>
                             x.SubeId == kriter.SubeId &&
                             x.KayitTarihi.ToUniversalTime() <= kriter.Tarih.Value.ToUniversalTime() &&
-                            (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.Value.ToUniversalTime() > kriter.Tarih.Value.ToUniversalTime()))
+                            (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.HasValue == kriter.KaldirilanlariGoster))
                         .ToListAsync())
                         :
                         // tarih yok
-                        (await _context.Zimmetler.Where(x => x.SubeId == kriter.SubeId).ToListAsync());
+                        (await _context.Zimmetler.Where(x => 
+                            x.SubeId == kriter.SubeId &&
+                            (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.HasValue == kriter.KaldirilanlariGoster))
+                        .ToListAsync());
                 }
             }
             else//kullanıcaya ait zimmet listesi
@@ -93,11 +96,14 @@ namespace Ayniyat.Dal.Concrete
               (await _context.Zimmetler.Where(x =>
                   x.KullaniciId == kriter.KullaniciId &&
                   x.KayitTarihi.ToUniversalTime() <= kriter.Tarih.Value.ToUniversalTime() &&
-                  (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.Value.ToUniversalTime() > kriter.Tarih.Value.ToUniversalTime()))
+                  (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.HasValue==kriter.KaldirilanlariGoster))
               .ToListAsync())
               :
               // tarih yok
-              (await _context.Zimmetler.Where(x => x.KullaniciId == kriter.KullaniciId).ToListAsync());
+              (await _context.Zimmetler.Where(x =>
+                x.KullaniciId == kriter.KullaniciId&&
+                (!x.KaldirilmaTarihi.HasValue || x.KaldirilmaTarihi.HasValue == kriter.KaldirilanlariGoster))
+              .ToListAsync());
 
             }
             }
