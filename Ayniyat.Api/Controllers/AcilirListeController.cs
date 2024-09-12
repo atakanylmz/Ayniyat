@@ -1,5 +1,6 @@
 ﻿using Ayniyat.Dal.Abstract;
 using Ayniyat.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -20,6 +21,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpGet( "kullanicilistesigetir")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> KullaniciListesiGetir(int subeId)
         {
             var kullaniciListesi=await _kullaniciDal.ListeGetir(new KullaniciAraKriterDto { SubeId = subeId,Aktifmi=true });
@@ -33,6 +36,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpGet("subelistesigetir")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> SubeListesiGetir()
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));

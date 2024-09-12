@@ -89,7 +89,7 @@ namespace Ayniyat.Api.Controllers
         #region personel_islemleri
 
         [HttpGet("getir/{id}")]
-        //[Authorize(Roles ="SisYon,Admin")]
+        [Authorize(Roles ="SisYon,Admin")]
         public async Task<IActionResult> Getir(int id)
         {
             var kullanici=await _kullaniciDal.Getir(id);
@@ -113,6 +113,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpPost("listeGetir")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> ListeGetir([FromBody] KullaniciAraKriterDto kriterDto)
         {
             var kullaniciListesi=await _kullaniciDal.ListeGetir(kriterDto);
@@ -134,6 +136,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpPost("kaydet")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> Kaydet([FromBody] KullaniciDto kullaniciDto)
         {
             if (kullaniciDto.Id == 0)//yeni kayıt

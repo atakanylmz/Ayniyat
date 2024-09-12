@@ -2,6 +2,7 @@
 using Ayniyat.Models.Dtos;
 using Ayniyat.Models.Entities;
 using Ayniyat.Models.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
@@ -28,6 +29,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpGet("getir/{id}")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> Getir(int id)
         {
             var zimmet=await _zimmetDal.Getir(id);
@@ -53,6 +56,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpPost("kaydet")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> Kaydet([FromBody] ZimmetDto zimmetDto)
         {
             if (zimmetDto.Id == 0)
@@ -171,7 +176,9 @@ namespace Ayniyat.Api.Controllers
         }
 
 
-        [HttpGet("ayniyatgecmisigetir")]
+        [HttpGet("ayniyatgecmisigetir/{zimmetId}")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> ZimmetLoglariGetir(int zimmetId)
         {
             var loglar=await _zimmetLogDal.ZimmetLoglariGetir(zimmetId);
@@ -181,7 +188,7 @@ namespace Ayniyat.Api.Controllers
                 MalzemeAd = x.MalzemeAd,
                 Birim = x.Birim,
                 EnvanterNo = x.EnvanterNo,
-                IslemTarihi = DateTime.UtcNow,
+                IslemTarihi = x.IslemTarihi,
                 Miktar = x.Miktar,
                 Model = x.Model,
                 SeriNo = x.SeriNo,
@@ -201,6 +208,8 @@ namespace Ayniyat.Api.Controllers
         /// <param name="kriter"></param>
         /// <returns></returns>
         [HttpPost("listegetir")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> ListeGetir(ZimmetAraKriterDto kriter)
         {
             var liste = await _zimmetDal.ZimmetListesiGetir(kriter);
@@ -225,6 +234,8 @@ namespace Ayniyat.Api.Controllers
 
 
         [HttpGet("kaldir/{zimmetId}")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> Kaldir(int zimmetId)
         {
             Zimmet? kaldirilacakZimmet=await _zimmetDal.Getir(zimmetId);
@@ -257,6 +268,8 @@ namespace Ayniyat.Api.Controllers
         }
 
         [HttpGet("excelindir/{kullaniciId}")]
+        [Authorize(Roles = "SisYon,Admin")]
+
         public async Task<IActionResult> ExcelIndir(int kullaniciId)
         {
             var kullanici = await _kullaniciDal.Getir(kullaniciId);
