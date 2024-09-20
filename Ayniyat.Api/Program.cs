@@ -43,18 +43,23 @@ builder.Services.AddDbContext<DefaultDbContext>(options =>
                 o.MigrationsHistoryTable("_mig_history", "ayniyat");
             }));
 
+
+builder.Services.AddHttpContextAccessor();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
 
 app.UseCors(builder =>
         builder
-        //.WithOrigins("http://localhost:8087")
+        .WithOrigins("https://ayniyat.kgm.gov.tr")
         .AllowAnyOrigin()
         .AllowAnyMethod()
-        .AllowAnyHeader());
+        .AllowAnyHeader()
+       /* .AllowCredentials()*/);
 
 
 // Configure the HTTP request pipeline.
@@ -64,6 +69,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseRouting();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

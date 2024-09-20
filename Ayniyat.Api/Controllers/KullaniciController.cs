@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using ServiceReference1;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.ServiceModel;
 using System.Text;
 
 namespace Ayniyat.Api.Controllers
@@ -28,16 +30,22 @@ namespace Ayniyat.Api.Controllers
         }
 
         #region login_islemleri
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginFormDto loginFormDto)
         {
             var kullanici = await _kullaniciDal.Getir(loginFormDto.KullaniciAdi);
             if (kullanici == null) 
             {
-                return BadRequest("Kullanıcı bulunamadı");
+                return NotFound("Kullanıcı bulunamadı");
             }
+            if(!(await IsValidUser(loginFormDto.KullaniciAdi, loginFormDto.Parola)))
+            {
+                return NotFound("Kullanıcı bulunamadı");
+            }
+
             //ldap'ta böyle bir kullanıcı var mı 
-            
+
             var tokenString=TokenUret(kullanici);
             ResponseLoginDto responseLoginDto = new ResponseLoginDto
             {
@@ -52,7 +60,26 @@ namespace Ayniyat.Api.Controllers
             return Ok(responseLoginDto);
         }
 
+        private static async Task<bool> IsValidUser(string username, string password)
+        {
+            BasicHttpBinding basicHttpBinding = null;
+            EndpointAddress endpointAddress = null;
 
+            try
+            {
+                basicHttpBinding = new BasicHttpBinding(BasicHttpSecurityMode.None);
+                basicHttpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+                endpointAddress = new EndpointAddress(new Uri("http://172.22.23.33/yetkiService/Services/LdapWebServices.asmx"));
+                LdapWebServicesSoapClient client = new LdapWebServicesSoapClient(basicHttpBinding, endpointAddress);
+                var x = await client.ValidateLdapUserAsync(username, password);
+                return  x.Body.ValidateLdapUserResult;
+            }
+            catch (Exception e)
+            {
+                Console.Write(e.Message);
+                return false;
+            }
+        }
 
         [AllowAnonymous]
         private string TokenUret(Kullanici kullanici)

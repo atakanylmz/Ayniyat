@@ -272,8 +272,17 @@ namespace Ayniyat.Api.Controllers
 
         public async Task<IActionResult> ExcelIndir(int kullaniciId)
         {
-            var kullanici = await _kullaniciDal.Getir(kullaniciId);
-            if (kullanici == null)
+            var kullanici = await _kullaniciDal.SubeyleGetir(kullaniciId);
+            if (kullanici == null||kullanici.Sube==null)
+                return NotFound();
+
+            var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var currentUser = await _kullaniciDal.SubeyleGetir(currentUserId);
+            if (currentUser == null || currentUser.Sube == null||currentUser.Sube.Daire==null)
+                return NotFound();
+
+            var mudur=await _kullaniciDal.SubeMuduruGetir(currentUser.SubeId);
+            if (mudur == null)
                 return NotFound();
 
             var liste=await _zimmetDal.ZimmetListesiGetir(new ZimmetAraKriterDto { KullaniciId = kullaniciId,Tarih=DateTime.UtcNow });
@@ -285,49 +294,52 @@ namespace Ayniyat.Api.Controllers
                 return NotFound();
             }
             
-            var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var currentUser = await _kullaniciDal.Getir(currentUserId);
-            if (currentUser == null)
-                return NotFound();
+          
 
             FileInfo fileInfo=new FileInfo(path);
             using (var excelapp = new ExcelPackage(fileInfo))
             {
                 var worksheet = excelapp.Workbook.Worksheets["Sayfa1"];
 
-                worksheet.Cells[2, 8].Value = DateTime.UtcNow;
+                worksheet.Cells[2, 1].Value = kullanici.Sube.Ad;
+                worksheet.Cells[2, 10].Value = DateTime.UtcNow;
+                worksheet.Cells[3, 1].Value = currentUser.Sube.Daire.Ad;
+
                 int satir = 6;
                 int sayac = 0;
-                //excelde her 28de bir tekrar ediyor. O yüzden kaç tane 17 lik satır varsa o kadar tekrarlı yazdırılacak alan olacak
-                int ciktiSyfaSayisi = (liste.Count / 17)+1;
-                int silinecek =28* ciktiSyfaSayisi;
+                //excelde her 25de bir tekrar ediyor. O yüzden kaç tane 15 lik satır varsa o kadar tekrarlı yazdırılacak alan olacak
+                int ciktiSyfaSayisi = (liste.Count / 16)+1;
+                int silinecek =25* ciktiSyfaSayisi+1;
                 foreach (var zimmet in liste)
                 {
                     worksheet.Cells[satir, 2].Value = zimmet.StokNo;
                     worksheet.Cells[satir, 3].Value = zimmet.TasinirNo;
-                    worksheet.Cells[satir, 4].Value = zimmet.MalzemeAd;
+                    worksheet.Cells[satir, 4].Value = zimmet.MalzemeAd+(string.IsNullOrWhiteSpace(zimmet.Model)?"":" ("+zimmet.Model+")");
                     worksheet.Cells[satir, 5].Value = zimmet.EnvanterNo;
                     worksheet.Cells[satir, 6].Value = zimmet.Birim;
                     worksheet.Cells[satir, 7].Value = zimmet.Miktar;
-                    worksheet.Cells[satir, 8].Value = zimmet.SeriNo;
-                    
+                    worksheet.Cells[satir, 9].Value = zimmet.SeriNo;
+                    worksheet.Cells[satir, 10].Value = zimmet.Aciklama;
+
                     sayac++;
-                    if(sayac==17)
+                    if(sayac==15)
                     {
                         sayac = 0;
-                        satir = satir + 12;
-
+                        satir = satir + 11;
                     }
                     else
                     satir += 1;
                 }
                 for (int i = 0; i < 9; i++)
                 {
-                    worksheet.Cells[25+i*28, 3].Value = kullanici.Unvan;
-                    worksheet.Cells[25 + i * 28, 5].Value = kullanici.Ad + " " + kullanici.Soyad;
+                    worksheet.Cells[23+i*25, 3].Value = kullanici.Unvan;
+                    worksheet.Cells[23 + i * 25, 5].Value = kullanici.Ad + " " + kullanici.Soyad;
 
-                    worksheet.Cells[26 + i * 28, 3].Value = currentUser.Unvan;
-                    worksheet.Cells[26 + i * 28, 5].Value = currentUser.Ad + " " + currentUser.Soyad;
+                    worksheet.Cells[24 + i * 25, 3].Value = currentUser.Unvan;
+                    worksheet.Cells[24 + i * 25, 5].Value = currentUser.Ad + " " + currentUser.Soyad;
+
+                    worksheet.Cells[25 + i * 25, 3].Value = mudur.Unvan;
+                    worksheet.Cells[25 + i * 25, 5].Value = mudur.Ad + " " + mudur.Soyad;
                 }
                 worksheet.DeleteRow(silinecek, 252);
 

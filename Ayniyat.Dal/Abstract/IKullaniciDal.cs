@@ -15,6 +15,7 @@ namespace Ayniyat.Dal.Abstract
         Task<List<Kullanici>> ListeGetir(KullaniciAraKriterDto kriterDto);
 
         Task<Kullanici?> SubeyleGetir(int id);
+        Task<Kullanici?> SubeMuduruGetir(int subeId);
     }
 
 }

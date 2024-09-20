@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Ayniyat.Models.Utilities.Enums;
 
 namespace Ayniyat.Dal
 {
@@ -52,11 +53,23 @@ namespace Ayniyat.Dal
         private void SeedData(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Daire>().HasData(
-                new Daire {Id=1, Ad = "Bilgi İşlem Dairesi Başkanlığı" }
-                /*
-                 ,new Daire { Ad = "... Dairesi Başkanlığı" }
-                 ,new Daire { Ad = "...  Dairesi Başkanlığı" }
-                 */
+                new Daire {Id=1, Ad = "Bilgi İşlem Dairesi Başkanlığı" },
+                new Daire {Id=2, Ad = "Destek Hizmetleri Dairesi Başkanlığı" },
+                new Daire {Id=3, Ad = "Personel Dairesi Başkanlığı" },
+                new Daire {Id=4, Ad = "İç Denetim Birimi Başkanlığı" },
+                new Daire {Id=5, Ad = "Strateji Geliştirme Dairesi Başkanlığı" },
+                new Daire {Id=6, Ad = "Teftiş Kurulu Başkanlığı" },
+                new Daire {Id=7, Ad = "Program ve İzleme Dairesi Başkanlığı" },
+                new Daire {Id=8, Ad = "Taşınmazlar Dairesi Başkanlığı" },
+                new Daire {Id=9, Ad = "Sanat Yapıları Dairesi Başkanlığı" },
+                new Daire {Id=10, Ad = "Makine ve İkmal Dairesi Başkanlığı" },
+                new Daire {Id=11, Ad = "İşletmeler Dairesi Başkanlığı" },
+                new Daire {Id=12, Ad = "Trafik Güvenliği Dairesi Başkanlığı" },
+                new Daire {Id=13, Ad = "Tesisler ve Bakım Dairesi Başkanlığı" },
+                new Daire {Id=14, Ad = "Yol Yapım Dairesi Başkanlığı" },
+                new Daire {Id=15, Ad = "Araştırma ve Geliştirme Dairesi Başkanlığı" },
+                new Daire {Id=16, Ad = "Etüt, Proje ve Çevre Dairesi Başkanlığı" }
+               
                 );
             modelBuilder.Entity<Sube>().HasData(
                 new Sube {Id=1, Ad = "Yazılım Geliştirme Şubesi Müdürlüğü",DaireId=1 }
@@ -75,9 +88,9 @@ namespace Ayniyat.Dal
                     Id=1,
                     Ad="Atakan",
                     Soyad="YILMAZ",
-                    RolId=1,
+                    RolId=(int)ERole.SisYon,
                     Eposta="atakan.yilmaz@kgm.gov.tr",
-                    SubeId=1,
+                    SubeId=(int)ESube.Yazilim,
                     Unvan= "UYGULAMA GELİŞTİRME TEKNİK ELEMANI",
                     Aktifmi=true
                 },
@@ -86,9 +99,9 @@ namespace Ayniyat.Dal
                     Id = 2,
                     Ad = "Uğur",
                     Soyad = "AFŞAR",
-                    RolId = 2,
+                    RolId = (int)ERole.Admin,
                     Eposta = "uafsar@kgm.gov.tr",
-                    SubeId = 1,
+                    SubeId = (int)ESube.AgSistem,
                     Unvan = "TAŞINIR KAYIT KONTROL YETKİLİSİ",
                     Aktifmi = true
                 },
@@ -97,9 +110,9 @@ namespace Ayniyat.Dal
                     Id = 3,
                     Ad = "CBS",
                     Soyad = "TOPLANTI SALONU",
-                    RolId = 4,
+                    RolId = (int)ERole.OrtakAlan,
                     Eposta = null,
-                    SubeId = 3,
+                    SubeId = (int)ESube.CBS,
                     Unvan = "TOPLANTI SALONU",
                     Aktifmi = true
                 },
@@ -108,9 +121,9 @@ namespace Ayniyat.Dal
                     Id = 4,
                     Ad = "Ağ Sist.",
                     Soyad = "TOPLANTI SALONU",
-                    RolId = 4,
+                    RolId = (int)ERole.OrtakAlan,
                     Eposta = null,
-                    SubeId = 3,
+                    SubeId = (int)ESube.AgSistem,
                     Unvan = "TOPLANTI SALONU",
                     Aktifmi = true
                 }

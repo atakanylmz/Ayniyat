@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Ayniyat.Models.Utilities.Enums;
 
 namespace Ayniyat.Dal.Concrete
 {
@@ -18,8 +19,16 @@ namespace Ayniyat.Dal.Concrete
 
         public async Task<Kullanici?> Getir(string kullaniciAdi)
         {
-            var eposta = kullaniciAdi + "@kgm.gov.tr";
-            return await _context.Kullanicilar.Include(x=>x.Rol).FirstOrDefaultAsync(x => x.Eposta == eposta);
+            try
+            {
+                var eposta = kullaniciAdi + "@kgm.gov.tr";
+                return await _context.Kullanicilar.Include(x => x.Rol).FirstOrDefaultAsync(x => x.Eposta == eposta);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+           
         }
 
         public async Task<List<Kullanici>> ListeGetir(KullaniciAraKriterDto kriterDto)
@@ -42,7 +51,12 @@ namespace Ayniyat.Dal.Concrete
 
         public async Task<Kullanici?> SubeyleGetir(int id)
         {
-            return await _context.Kullanicilar.Include(x=>x.Sube).FirstOrDefaultAsync(x=>x.Id==id);
+            return await _context.Kullanicilar.Include(x=>x.Sube).ThenInclude(x=>x.Daire).FirstOrDefaultAsync(x=>x.Id==id);
+        }
+
+        public async Task<Kullanici?> SubeMuduruGetir(int subeId)
+        {
+            return await _context.Kullanicilar.Include(x => x.Sube).ThenInclude(x => x.Daire).FirstOrDefaultAsync(x => x.SubeId==subeId&&x.RolId==(int)ERole.Mudur);
         }
     }
 }
