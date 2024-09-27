@@ -126,6 +126,8 @@ namespace Ayniyat.Api.Controllers
                 guncellenecekZimmet.SeriNo=zimmetDto.SeriNo;
                 guncellenecekZimmet.Model=zimmetDto.Model;
                 guncellenecekZimmet.Aciklama=zimmetDto.Aciklama;
+                guncellenecekZimmet.GuncellemeTarihi = DateTime.UtcNow;
+                guncellenecekZimmet.Birim=zimmetDto.Birim;
 
                 var log = new ZimmetLog
                 {
@@ -170,7 +172,10 @@ namespace Ayniyat.Api.Controllers
                 degisim += "Stok No, ";
             if (zimmet.TasinirNo != zimmetDto.TasinirNo)
                 degisim += "Taşınır No, ";
-            if(degisim.Length>2)
+            if (zimmet.Aciklama != zimmetDto.Aciklama)
+                degisim += "Açıklama, ";
+
+                if (degisim.Length>2)
             degisim = degisim.Remove(degisim.Length - 2, 2);
                 return degisim;
         }
@@ -299,11 +304,19 @@ namespace Ayniyat.Api.Controllers
             FileInfo fileInfo=new FileInfo(path);
             using (var excelapp = new ExcelPackage(fileInfo))
             {
-                var worksheet = excelapp.Workbook.Worksheets["Sayfa1"];
+                DateTime ilkgun = new DateTime(DateTime.UtcNow.Year, 1, 2);
+                while (ilkgun.DayOfWeek == DayOfWeek.Saturday || ilkgun.DayOfWeek == DayOfWeek.Sunday)
+                    ilkgun = ilkgun.AddDays(1);
 
-                worksheet.Cells[2, 1].Value = kullanici.Sube.Ad;
-                worksheet.Cells[2, 10].Value = DateTime.UtcNow;
-                worksheet.Cells[3, 1].Value = currentUser.Sube.Daire.Ad;
+                var worksheet = excelapp.Workbook.Worksheets["Sayfa1"];
+                for (int i = 0; i < 10; i++)
+                {        
+                    worksheet.Cells[2 + i * 25, 1].Value = currentUser.Sube.Daire.Ad;
+                    worksheet.Cells[3+i*25, 1].Value = kullanici.Sube.Ad;
+
+                    worksheet.Cells[1 + i * 25, 10].Value = ilkgun;
+                    worksheet.Cells[2 + i * 25, 10].Value = DateTime.UtcNow;
+                }
 
                 int satir = 6;
                 int sayac = 0;
@@ -312,6 +325,8 @@ namespace Ayniyat.Api.Controllers
                 int silinecek =25* ciktiSyfaSayisi+1;
                 foreach (var zimmet in liste)
                 {
+                   
+
                     worksheet.Cells[satir, 2].Value = zimmet.StokNo;
                     worksheet.Cells[satir, 3].Value = zimmet.TasinirNo;
                     worksheet.Cells[satir, 4].Value = zimmet.MalzemeAd+(string.IsNullOrWhiteSpace(zimmet.Model)?"":" ("+zimmet.Model+")");
